@@ -30,7 +30,7 @@
                 {   
                     view:"toolbar", id:"crud", elements:
                     [
-                        { view:"button", value:"Add", width: 70},
+                        { view:"button", value:"Add", width: 70, click:"toggle_add_sales_report"},
                         { view:"button", value:"Edit", width: 70},
                     ]
                 },
@@ -92,7 +92,35 @@
                 datatype:"csv",
                 url:'data/salesreport.csv'
             }
-        })
+        });
+		
+		//add sales report form
+		addsalesreport = new webix.ui
+        ({
+			view:"window", move:true,
+            left:300, top:400,
+			width:600,
+			head:
+			{
+				view:"toolbar", id:"addsalesreport", elements:
+                [
+					{ type:"header", template: "Add Sales Report"},
+					{ view:"button", value:"Add", align: 'left', width: 160, click:"import_item"},
+					{ view:"button", value:"Close", align: 'right', width: 160, click:"toggle_add_sales_report"}
+				]
+			},
+			
+			body:
+			{
+				view:"form", id:"addform",
+				elements:
+				[
+					{ view:"text", label:"Item:" },
+					{ view:"text", label:"Stock Price ($):" },
+					{ view:"text", label:"Sale Price ($):" }
+				],
+			}
+        });
 
         // chuck our functions here for organisational purposes
 
@@ -108,21 +136,47 @@
                  salesreport.show();
             }
         }
-
-        // export data to csv
-        function export_csv()
-        {
-            document.getElementById('download').click();
+		
+		// toggle add sales report window
+		function toggle_add_sales_report()
+        {   
+            if (addsalesreport.isVisible())
+            {
+                addsalesreport.hide();
+            }
+            else
+            {
+                 addsalesreport.show();
+            }
         }
+		
+
+        // export data to csv (WIP)
+        //function export_csv()
+        //{
+        //    document.getElementById('download').click();
+        //}
+		
+		// add sales report
+		function import_item()
+		{
+			add.data.reporttable
+		}
 
         //testing toggle_sales_report
-        
         QUnit.test("toggle report", function(assert)
         {
             toggle_sales_report();
-            assert.equal(salesreport.isVisible(), true, "Report should be visible.");
+            assert.equal(salesreport.isVisible(), true, "Sales Report should be visible.");
         });
-
+		
+		//testing toggle_add_sales_report
+		QUnit.test("toggle report", function(assert)
+        {
+            toggle_add_sales_report();
+            assert.equal(addsalesreport.isVisible(), true, "Add Sales Report should be visible.");
+        });
+		
         </script>
     </body>
 </html>
