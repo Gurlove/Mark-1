@@ -14,10 +14,12 @@
         <!-- QUnit divs to show test results--> 
         <div id="qunit"></div>
         <div id="qunit-fixture"></div>
-
+        <!--link to download salesrecords.csv-->
+        <a href="data/salesreport.csv" download id="download" hidden></a>
         <!--<div id="box" style="width:1200px;height:800px;"></div>-->
         <script type="text/javascript" charset="utf-8">
         // main UI (CRUD)
+        webix.csv.delimiter.cols = ",";
         webix.ui
         ({
             rows: 
@@ -42,6 +44,7 @@
                         { id: "data4", header:"Stock Price ($)", width:140 }
                     ],
                     // loads data from csv file
+                    select:true,
                     datatype:"csv",
                     url:'data/salesrecords.csv'
                 },
@@ -62,21 +65,32 @@
         salesreport = new webix.ui
         ({
             view:"window", move:true,
-            head:"DataTable", left:300, top:400,
-            body:{
-                view:"datatable",
+            left:300, top:400,
+            head:
+            {
+                view:"toolbar", id:"salesreport", elements:
+                [
+                    { type:"header", template:"Monthly Sales Report"},
+                    { view:"button", value:"Export CSV", align: 'left', width: 160, click:"export_csv"},
+                    { view:"button", value:"Close", align: 'right', width: 160, click:"toggle_sales_report"}
+                ]
+            },
+
+            body:
+            {
+                view:"datatable", id:"reporttable",
                 columns:
                 [
                     { id: "data1", header:"Item Name", width:180 },
                     { id: "data2", header:"Sales", width:100 },
-                    { id: "data3", header:"Sale Price ($)", width:140 },
-                    { id: "data4", header:"Stock Price ($)", width:140 }
+                    { id: "data3", header:"Profit ($)", width:140 },
+                    { id: "data4", header:"ROI (%)", width:140 }
                 ],
                 autoheight:true,
                 autowidth:true,
                 // loads data from csv file
                 datatype:"csv",
-                url:'data/salesrecords.csv'
+                url:'data/salesreport.csv'
             }
         })
 
@@ -93,6 +107,12 @@
             {
                  salesreport.show();
             }
+        }
+
+        // export data to csv
+        function export_csv()
+        {
+            document.getElementById('download').click();
         }
 
         //testing toggle_sales_report
