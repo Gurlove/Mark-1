@@ -9,6 +9,8 @@
         <script src="codebase/webix.js" type="text/javascript"></script>  
         <!-- QUnit JS file-->    
         <script src="qunit/qunit-2.0.1.js"></script>
+        <!-- Unit Testing JS file-->
+        <script src="unittests.js"></script>
     </head>
     <body>
         <!-- QUnit divs to show test results--> 
@@ -114,14 +116,6 @@
         {
             document.getElementById('download').click();
         }
-
-        //testing toggle_sales_report
-        
-        QUnit.test("toggle report", function(assert)
-        {
-            toggle_sales_report();
-            assert.equal(salesreport.isVisible(), true, "Report should be visible.");
-        });
 
         </script>
     </body>
