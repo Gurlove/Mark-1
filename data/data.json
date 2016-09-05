@@ -1,0 +1,4 @@
+[
+	{"id":1, "item": "Tooth Brush", "sales": 21,"saleprice": 5, "stockprice": 2.5, "profit": 69, "roi": 122},
+	{"id":2, "item": "Potato", "sales": 69,"saleprice": 2, "stockprice": 0.5, "profit": 69, "roi": 122}
+]
