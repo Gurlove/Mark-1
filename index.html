@@ -11,12 +11,16 @@
         <script src="qunit/qunit-2.0.1.js"></script>
         <!-- Unit Testing JS file-->
         <script src="unittests.js"></script>
+        <script src="test.js"></script>
+        <!-- jQuery JS file-->
+        <script src="jquery/jquery-3.1.0.js"></script>
     </head>
     <body>
         <!-- QUnit divs to show test results--> 
         <div id="qunit"></div>
         <div id="qunit-fixture"></div>
         <!--link to download salesrecords.csv-->
+
         <script type="text/javascript" charset="utf-8">
         // main UI (CRUD)
         webix.ui
@@ -43,7 +47,8 @@
                         { id: "stockprice", header:"Stock Price ($)", width:140 }
                     ],
                     // loads data from json file
-                    select:true,
+                    editable:true,
+                    
                     url:"data/data.json"
                 },
 
@@ -53,7 +58,7 @@
                     view:"toolbar", id:"Reports", elements:
                     [
                         { view:"button", value:"View Sales Report", width: 160, click:"toggle_sales_report"},
-                        { view:"button", value:"View Stocktake Report", width: 160},
+                        { view:"button", value:"View Stocktake Report", width: 160, click: "add_item"},
                     ]
                 }
             ]
@@ -114,9 +119,8 @@
 
         function add_item()
         {
-
+            $.post("test.js")
         }
-
         </script>
     </body>
 </html>
