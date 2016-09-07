@@ -10,14 +10,14 @@ QUnit.test("toggle report", function(assert)
 //testing toggle_edit_sales_report
 QUnit.test("toggle edit sales", function(assert)
 {
-assert.equal(salesreport.isVisible(), true, "Edit Sales Report should be visible.");
-toggle_edit_sales_report();
+	toggle_edit_sales_report();
+	assert.equal(salesreport.isVisible(), true, "Edit Sales Report should be visible.");
 });
 		
 //testing toggle_add_sales_report
 QUnit.test("toggle add sales", function(assert)
 {
-toggle_add_sales_report();
-assert.equal(addsalesreport.isVisible(), true, "Add Sales Report should be visible.");
+	toggle_add_sales_report();
+	assert.equal(addsalesreport.isVisible(), true, "Add Sales Report should be visible.");
 });
 		
