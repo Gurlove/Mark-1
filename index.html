@@ -11,7 +11,6 @@
         <script src="qunit/qunit-2.0.1.js"></script>
         <!-- Unit Testing JS file-->
         <script src="unittests.js"></script>
-        <script src="test.js"></script>
         <!-- jQuery JS file-->
         <script src="jquery/jquery-3.1.0.js"></script>
     </head>
@@ -33,8 +32,8 @@
                 {   
                     view:"toolbar", id:"crud", elements:
                     [
-                        { view:"button", value:"Add", width: 70},
-                        { view:"button", value:"Edit", width: 70},
+                        { view:"button", value:"Add", width: 70, click:"toggle_add_sales_report"},
+                        { view:"button", value:"Edit", width: 70, click:"toggle_edit_sales_report"},
                     ]
                 },
 
@@ -58,7 +57,7 @@
                     view:"toolbar", id:"Reports", elements:
                     [
                         { view:"button", value:"View Sales Report", width: 160, click:"toggle_sales_report"},
-                        { view:"button", value:"View Stocktake Report", width: 160, click: "add_item"},
+                        { view:"button", value:"View Stocktake Report", width: 160},
                     ]
                 }
             ]
@@ -95,6 +94,64 @@
                 url:'data/data.json'
             }
         })
+ 
+                //add sales report form
+        addsalesreport = new webix.ui
+        ({
+            view:"window", move:true,
+            left:300, top:400,
+            width:600,
+            head:
+            {
+                view:"toolbar", id:"addsalesreport", elements:
+                [
+                    { type:"header", template: "Add Sales Report"},
+                    { view:"button", value:"Add", align: 'left', width: 160, click:"import_item"},
+                    { view:"button", value:"Close", align: 'right', width: 160, click:"toggle_add_sales_report"}
+                ]
+            },
+            
+            body:
+            {
+                view:"form", id:"addform",
+                elements:
+                [
+                    { view:"text", label:"Item:" },
+                    { view:"text", label:"Stock Price ($):" },
+                    { view:"text", label:"Sale Price ($):" }
+                ],
+            }
+        });
+
+        // edit sales report form
+        editsalesreport = new webix.ui
+        ({
+            view:"window", move:true,
+            left:300, top:400,
+            width:600,
+            head:
+            {
+                view:"toolbar", id:"editsalesreport", elements:
+                [
+                    { type:"header", template: "Edit Sales Report"},
+                    { view:"button", value:"Close", align: 'right', width: 160, click:"toggle_edit_sales_report"}
+                ]
+            },
+            
+            body:
+            {
+                view:"form", id:"addform",
+                width:400,
+                elements:
+                [
+                    { view:"text", label:"Item:" },
+                    { view:"button", value:"Increment by:", width: 140},
+                    { view:"text", label:"" },
+                    { view:"text", label:"Sales:" }
+                    
+                ],
+            }
+        });
 
         // chuck our functions here for organisational purposes
 
@@ -111,6 +168,31 @@
             }
         }
 
+        // toggle add sales report window
+        function toggle_add_sales_report()
+        {   
+            if (addsalesreport.isVisible())
+            {
+                addsalesreport.hide();
+            }
+            else
+            {
+                 addsalesreport.show();
+            }
+        }
+        
+        //toggle edit sales report
+        function toggle_edit_sales_report()
+        {
+            if (editsalesreport.isVisible())
+            {
+                editsalesreport.hide();
+            }
+            else
+            {
+                editsalesreport.show();
+            }
+        }
         // export data to csv
         function export_excel()
         {
@@ -119,7 +201,7 @@
 
         function add_item()
         {
-            $.post("test.js")
+
         }
         </script>
     </body>
