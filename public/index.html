@@ -1,0 +1,277 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <!-- Webix CSS file-->  
+        <link rel="stylesheet" href="/styles/webix.css" type="text/css">
+        <!-- QUnit CSS file-->  
+        <link rel="stylesheet" href="/styles/qunit-2.0.1.css">
+        <!-- Webix JS file-->    
+        <script src="/scripts/webix.js" type="text/javascript"></script>  
+        <!-- QUnit JS file-->    
+        <script src="/scripts/qunit-2.0.1.js"></script>
+        <!-- jQuery JS file-->
+        <script src="/scripts/jquery-3.1.0.js"></script>
+        <!-- Unit Testing JS file-->
+        <script src="/scripts/unittests.js"></script>
+    </head>
+    <body>
+        <!-- QUnit divs to show test results--> 
+        <div id="qunit"></div>
+        <div id="qunit-fixture"></div>
+        <script type = "text/javascript" charset="utf-8">
+         // main UI (CRUD)
+        webix.ui
+        ({
+            rows: 
+            [
+
+                { type:"header", template:"Sales Records" },
+ 
+                {   
+                    view:"toolbar", id:"crudbar", elements:
+                    [
+                        { view:"button", value:"Add", width: 70, click:"toggle_add_sales_report"},
+                        { view:"button", value:"Edit", width: 70, click:"toggle_edit_sales_report"},
+                    ]
+                },
+
+                {
+                    view:"datatable", id:"crudtable", fillspace:1, columns:
+                    [
+                        { id: "item", header:"Item Name", width:180 },
+                        { id: "sales", header:"Sales", width:100 },
+                        { id: "saleprice", header:"Sale Price ($)", width:140 },
+                        { id: "stockprice", header:"Stock Price ($)", width:140 }
+                    ],
+                    select: "row",
+                    // loads data from json file
+                    url:"data/data.json"
+                },
+
+                { type:"header", template:"Reports" },
+
+                {   
+                    view:"toolbar", id:"Reports", elements:
+                    [
+                        { view:"button", value:"View Sales Report", width: 160, click:"toggle_sales_report"},
+                        { view:"button", value:"View Stocktake Report", width: 160},
+                    ]
+                }
+            ]
+        }); 
+
+        // sales report window 
+        salesreport = new webix.ui
+        ({
+            view:"window", move:true,
+            left:300, top:400,
+            head:
+            {
+                view:"toolbar", id:"salesreport", elements:
+                [
+                    { type:"header", template:"Monthly Sales Report"},
+                    { view:"button", value:"Export", align: 'left', width: 160, click:"export_excel"},
+                    { view:"button", value:"Close", align: 'right', width: 160, click:"toggle_sales_report"}
+                ]
+            },
+
+            body:
+            {
+                view:"datatable", id:"reporttable",
+                columns:
+                [
+                    { id: "item", header:"Item Name", width:180 },
+                    { id: "sales", header:"Sales", width:100 },
+                    { id: "profit", header:"Profit ($)", width:140 },
+                    { id: "roi", header:"ROI (%)", width:140 }
+                ],
+                autoheight:true,
+                autowidth:true,
+                // loads data from json file
+                url:'data/data.json'
+            }
+        })
+ 
+                //add sales report form
+        addsalesreport = new webix.ui
+        ({
+            view:"window", move:true,
+            left:300, top:400,
+            width:600,
+            head:
+            {
+                view:"toolbar", id:"addsalesreport", elements:
+                [
+                    { type:"header", template: "Add Sales Record"},
+                    { view:"button", value:"Add", align: 'left', width: 160, click:"add_item"},
+                    { view:"button", value:"Close", align: 'right', width: 160, click:"toggle_add_sales_report"}
+                ]
+            },
+            
+            body:
+            {
+                view:"form", id:"addform",
+                elements:
+                [
+                    { view:"text", name:"item", placeholder:"Item Name" },
+                    { view:"text", name:"stockprice", placeholder:"Stock Price ($)"},
+                    { view:"text", name:"saleprice", placeholder:"Sale Price ($)"}
+                ],
+            }
+        });
+
+        // edit sales report form
+        editsalesreport = new webix.ui
+        ({
+            view:"window", move:true,
+            left:300, top:400,
+            width:600,
+            head:
+            {
+                view:"toolbar", id:"editsalesreport", elements:
+                [
+                    { type:"header", template: "Edit Sales Record"},
+                    { view:"button", value:"Close", align: 'right', width: 160, click:"toggle_edit_sales_report"}
+                ]
+            },
+            
+            body:
+            {
+                view:"form", id:"editform",
+                width:400,
+                elements:
+                [
+                    { view:"text", name:"id", hidden: true},
+                    { view:"text", name:"item", placeholder: "Select item"},
+                    { view:"text", name:"sales", placeholder: "Amount of sales to add"},
+                    { view:"button", value:"Add", width: 140, click:"edit_item"}
+                ],
+            }
+        });
+
+        // chuck our functions here for organisational purposes
+
+        // fills edit form item with selection in crud table
+        $$("crudtable").attachEvent("onAfterSelect", function(id){
+            $$("editform").setValues({
+                item: $$("crudtable").getItem(id).item,
+                id: $$("crudtable").getItem(id).id
+            });
+        });
+
+        // toggle sales report window
+        function toggle_sales_report()
+        {   
+            if (salesreport.isVisible())
+            {
+                salesreport.hide();
+            }
+            else
+            {
+                 salesreport.show();
+            }
+        }
+
+        // toggle add sales report window
+        function toggle_add_sales_report()
+        {   
+            if (addsalesreport.isVisible())
+            {
+                addsalesreport.hide();
+            }
+            else
+            {
+                 addsalesreport.show();
+            }
+        }
+        
+        //toggle edit sales report
+        function toggle_edit_sales_report()
+        {
+            if (editsalesreport.isVisible())
+            {
+                editsalesreport.hide();
+                $$("crudtable").unselectAll();
+                $$("editform").clear();
+            }
+            else
+            {
+                editsalesreport.show();
+            }
+        }
+
+        // empties data then reloads it
+        function reload_data()
+        {
+            $$("crudtable").clearAll()
+            $$("crudtable").load('data/data.json');  
+            $$("reporttable").clearAll()
+            $$("reporttable").load('data/data.json');
+        }
+        // export data to csv
+        function export_excel()
+        {
+            
+        }
+
+        function add_item()
+        {
+            // data to add, ints are wrapped in parseInt values are grabbed from form
+            // rest are 0 (empty) as they are handled by server
+            var data = {
+                        id: 0, 
+                        item: $$("addform").getValues().item, 
+                        sales: 0,
+                        stockprice: parseInt($$("addform").getValues().stockprice),
+                        saleprice: parseInt($$("addform").getValues().saleprice),
+                        profit: 0,
+                        roi: 0
+                        };
+
+            // ajax post call to server     
+            $.ajax({
+                type: 'POST',
+                data: JSON.stringify(data),
+                contentType: 'application/json',
+                url: '/public/data/data.json',                
+                success: function(data) {
+                    console.log('success');
+                    console.log(data);
+                }
+            });         
+
+            reload_data();
+        }
+
+        function edit_item()
+        {
+            // data to add, ints are wrapped in parseInt values are grabbed from form
+            // rest are 0 (empty) as they are handled by server
+            var data = {
+                        id: $$("editform").getValues().id, 
+                        item: $$("editform").getValues().item, 
+                        sales: parseInt($$("editform").getValues().sales),
+                        stockprice: 0,
+                        saleprice: 0,
+                        profit: 0,
+                        roi: 0
+                        };
+
+            // ajax put call to server
+            $.ajax({
+                type: 'PUT',
+                data: JSON.stringify(data),
+                contentType: 'application/json',
+                url: '/public/data/data.json',                
+                success: function(data) {
+                    console.log('success');
+                    console.log(data);
+                }
+            });   
+
+            reload_data();   
+        }
+
+        </script> 
+    </body>
+</html>
