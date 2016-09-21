@@ -115,9 +115,9 @@
                 view:"form", id:"addform",
                 elements:
                 [
-                    { view:"text", name:"item", placeholder:"Item Name", invalidMessage: "You must enter a name", required: true},
-                    { view:"text", name:"stockprice", placeholder:"Stock Price ($)", invalidMessage: "You must enter a stock price", required: true},
-                    { view:"text", name:"saleprice", placeholder:"Sale Price ($)", invalidMessage: "You must enter a sale price", required: true}
+                    { view:"text", name:"item", placeholder:"Enter Item Name", invalidMessage: "You must enter a name", required: true},
+                    { view:"text", name:"stockprice", placeholder:"Enter Stock Price ($)", invalidMessage: "You must enter a stock price", required: true},
+                    { view:"text", name:"saleprice", placeholder:"Enter Sale Price ($)", invalidMessage: "You must enter a sale price", required: true}
                 ],
             }
         });
@@ -144,8 +144,8 @@
                 elements:
                 [
                     { view:"text", name:"id", hidden: true},
-                    { view:"text", name:"item", placeholder: "Select item"},
-                    { view:"text", name:"sales", placeholder: "Amount of sales to add"},
+                    { view:"text", name:"item", placeholder: "Select item", required: true},
+                    { view:"text", name:"sales", placeholder: "Edit amount of sales"},
                     { view:"button", value:"Edit", width: 140, click:"edit_item"}
                 ],
             }
@@ -262,36 +262,41 @@
                 reload_data();
             }
             else
-                webix.message({ type:"error", text:"Form data is invalid" });
+                webix.message({ type:"error", text:"Some item information is missing" });
         }
 
         function edit_item()
         {
             // data to add, ints are wrapped in parseInt values are grabbed from form
             // rest are 0 (empty) as they are handled by server
-            var data = {
-                        id: $$("editform").getValues().id, 
-                        item: $$("editform").getValues().item, 
-                        sales: parseInt($$("editform").getValues().sales),
-                        stockprice: 0,
-                        saleprice: 0,
-                        profit: 0,
-                        roi: 0
-                        };
+            if($$("addform").validate())
+            {
+                var data = {
+                            id: $$("editform").getValues().id, 
+                            item: $$("editform").getValues().item, 
+                            sales: parseInt($$("editform").getValues().sales),
+                            stockprice: 0,
+                            saleprice: 0,
+                            profit: 0,
+                            roi: 0
+                            };
 
-            // ajax put call to server
-            $.ajax({
-                type: 'PUT',
-                data: JSON.stringify(data),
-                contentType: 'application/json',
-                url: '/public/data/data.json',                
-                success: function(data) {
-                    console.log('success');
-                    console.log(data);
-                }
-            });   
+                // ajax put call to server
+                $.ajax({
+                    type: 'PUT',
+                    data: JSON.stringify(data),
+                    contentType: 'application/json',
+                    url: '/public/data/data.json',                
+                    success: function(data) {
+                        console.log('success');
+                        console.log(data);
+                    }
+                });   
 
-            reload_data();   
+                reload_data();                  
+            }
+            else
+                webix.message({ type:"error", text:"No item selected" });
         }
 		
 		function increment_item()
