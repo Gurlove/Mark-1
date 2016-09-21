@@ -18,6 +18,7 @@
         <!-- QUnit divs to show test results--> 
         <div id="qunit"></div>
         <div id="qunit-fixture"></div>
+        <a id = "download" href="data/data.csv"/a>
         <script type = "text/javascript" charset="utf-8">
          // main UI (CRUD)
         webix.ui
@@ -32,7 +33,7 @@
                     [
                         { view:"button", value:"Add", width: 70, click:"toggle_add_sales_report"},
                         { view:"button", value:"Edit", width: 70, click:"toggle_edit_sales_report"},
-						{ view:"button", value:"+", width: 70, click:"increment_item"}
+						{ view:"button", value:"+", width: 70, click:"increment_item", hidden: true, id:"appendButton"}
                     ]
                 },
 
@@ -71,7 +72,7 @@
                 view:"toolbar", id:"salesreport", elements:
                 [
                     { type:"header", template:"Monthly Sales Report"},
-                    { view:"button", value:"Export", align: 'left', width: 160, click:"export_excel"},
+                    { view:"button", value:"Export", align: 'left', width: 160, click:"export_to_csv"},
                     { view:"button", value:"Close", align: 'right', width: 160, click:"toggle_sales_report"}
                 ]
             },
@@ -114,9 +115,9 @@
                 view:"form", id:"addform",
                 elements:
                 [
-                    { view:"text", name:"item", placeholder:"Item Name" },
-                    { view:"text", name:"stockprice", placeholder:"Stock Price ($)"},
-                    { view:"text", name:"saleprice", placeholder:"Sale Price ($)"}
+                    { view:"text", name:"item", placeholder:"Item Name", invalidMessage: "You must enter a name", required: true},
+                    { view:"text", name:"stockprice", placeholder:"Stock Price ($)", invalidMessage: "You must enter a stock price", required: true},
+                    { view:"text", name:"saleprice", placeholder:"Sale Price ($)", invalidMessage: "You must enter a sale price", required: true}
                 ],
             }
         });
@@ -143,9 +144,9 @@
                 elements:
                 [
                     { view:"text", name:"id", hidden: true},
-                    { view:"text", name:"item", placeholder: "Select item", editable: false},
+                    { view:"text", name:"item", placeholder: "Select item"},
                     { view:"text", name:"sales", placeholder: "Amount of sales to add"},
-                    { view:"button", value:"Add", width: 140, click:"edit_item"}
+                    { view:"button", value:"Edit", width: 140, click:"edit_item"}
                 ],
             }
         });
@@ -154,9 +155,11 @@
 
         // fills edit form item with selection in crud table
         $$("crudtable").attachEvent("onAfterSelect", function(id){
+            $$("appendButton").show();
             $$("editform").setValues({
                 item: $$("crudtable").getItem(id).item,
-                id: $$("crudtable").getItem(id).id
+                id: $$("crudtable").getItem(id).id,
+                sales: $$("crudtable").getItem(id).sales
             });
         });
 
@@ -210,38 +213,56 @@
             $$("reporttable").load('data/data.json');
         }
         // export data to csv
-        function export_excel()
+        function export_to_csv()
         {
-            
+            var csvHeaders = ['item', 'sales', 'stockprice', 'saleprice', 'profit', 'roi' ];
+            var csvHeaderNames = ['Item', 'Sales', 'Stock Price ($)', 'Sale Price ($)', 'Profit', 'ROI' ];
+
+            $.ajax({
+                type: 'POST',
+                data: {csvHeaders: csvHeaders, csvHeaderNames: csvHeaderNames},
+                url: '/public/data/data.csv',                
+                success: function(data) {
+                    console.log('success');
+                    console.log(data);
+                }
+            });  
+            document.getElementById('download').click();
+   
         }
 
         function add_item()
         {
             // data to add, ints are wrapped in parseInt values are grabbed from form
             // rest are 0 (empty) as they are handled by server
-            var data = {
-                        id: 0, 
-                        item: $$("addform").getValues().item, 
-                        sales: 0,
-                        stockprice: parseInt($$("addform").getValues().stockprice),
-                        saleprice: parseInt($$("addform").getValues().saleprice),
-                        profit: 0,
-                        roi: 0
-                        };
+            if($$("addform").validate())
+            {
+                var data = {
+                            id: 0, 
+                            item: $$("addform").getValues().item, 
+                            sales: 0,
+                            stockprice: parseInt($$("addform").getValues().stockprice),
+                            saleprice: parseInt($$("addform").getValues().saleprice),
+                            profit: 0,
+                            roi: 0
+                            };
 
-            // ajax post call to server     
-            $.ajax({
-                type: 'POST',
-                data: JSON.stringify(data),
-                contentType: 'application/json',
-                url: '/public/data/data.json',                
-                success: function(data) {
-                    console.log('success');
-                    console.log(data);
-                }
-            });         
+                // ajax post call to server     
+                $.ajax({
+                    type: 'POST',
+                    data: JSON.stringify(data),
+                    contentType: 'application/json',
+                    url: '/public/data/data.json',                
+                    success: function(data) {
+                        console.log('success');
+                        console.log(data);
+                    }
+                });         
 
-            reload_data();
+                reload_data();
+            }
+            else
+                webix.message({ type:"error", text:"Form data is invalid" });
         }
 
         function edit_item()
@@ -284,11 +305,12 @@
                         profit: 0,
                         roi: 0
                         };
+
 			$.ajax({
                 type: 'PUT',
                 data: JSON.stringify(data),
                 contentType: 'application/json',
-                url: '/public/data/data.json',                
+                url: '/public/data/data.json:increment',                
                 success: function(data) {
                     console.log('success');
                     console.log(data);
