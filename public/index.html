@@ -32,6 +32,7 @@
                     [
                         { view:"button", value:"Add", width: 70, click:"toggle_add_sales_report"},
                         { view:"button", value:"Edit", width: 70, click:"toggle_edit_sales_report"},
+						{ view:"button", value:"+", width: 70, click:"increment_item"}
                     ]
                 },
 
@@ -142,7 +143,7 @@
                 elements:
                 [
                     { view:"text", name:"id", hidden: true},
-                    { view:"text", name:"item", placeholder: "Select item"},
+                    { view:"text", name:"item", placeholder: "Select item", editable: false},
                     { view:"text", name:"sales", placeholder: "Amount of sales to add"},
                     { view:"button", value:"Add", width: 140, click:"edit_item"}
                 ],
@@ -271,7 +272,32 @@
 
             reload_data();   
         }
-
+		
+		function increment_item()
+		{
+			var data = {
+                        id: $$("editform").getValues().id, 
+                        item: $$("editform").getValues().item, 
+                        sales: 1,
+                        stockprice: 0,
+                        saleprice: 0,
+                        profit: 0,
+                        roi: 0
+                        };
+			$.ajax({
+                type: 'PUT',
+                data: JSON.stringify(data),
+                contentType: 'application/json',
+                url: '/public/data/data.json',                
+                success: function(data) {
+                    console.log('success');
+                    console.log(data);
+                }
+            });   
+			$$("crudtable").unselectAll();
+            $$("editform").clear();
+            reload_data();
+		}
         </script> 
     </body>
 </html>
