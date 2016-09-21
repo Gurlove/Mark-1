@@ -33,7 +33,7 @@
                     [
                         { view:"button", value:"Add", width: 70, click:"toggle_add_sales_report"},
                         { view:"button", value:"Edit", width: 70, click:"toggle_edit_sales_report"},
-						{ view:"button", value:"+", width: 70, click:"increment_item", hidden: true, id:"appendButton"}
+						{ view:"button", value:"+", width: 70, click:"increment_item", id:"appendButton"}
                     ]
                 },
 
@@ -42,8 +42,9 @@
                     [
                         { id: "item", header:"Item Name", width:180 },
                         { id: "sales", header:"Sales", width:100 },
-                        { id: "saleprice", header:"Sale Price ($)", width:140 },
-                        { id: "stockprice", header:"Stock Price ($)", width:140 }
+                        { id: "stockprice", header:"Stock Price ($)", width:140 },
+                        { id: "saleprice", header:"Sale Price ($)", width:140 }
+
                     ],
                     select: "row",
                     // loads data from json file
@@ -144,7 +145,7 @@
                 elements:
                 [
                     { view:"text", name:"id", hidden: true},
-                    { view:"text", name:"item", placeholder: "Select item", required: true},
+                    { view:"text", name:"item", placeholder: "Select item"},
                     { view:"text", name:"sales", placeholder: "Edit amount of sales"},
                     { view:"button", value:"Edit", width: 140, click:"edit_item"}
                 ],
@@ -155,7 +156,6 @@
 
         // fills edit form item with selection in crud table
         $$("crudtable").attachEvent("onAfterSelect", function(id){
-            $$("appendButton").show();
             $$("editform").setValues({
                 item: $$("crudtable").getItem(id).item,
                 id: $$("crudtable").getItem(id).id,
@@ -182,6 +182,7 @@
             if (addsalesreport.isVisible())
             {
                 addsalesreport.hide();
+                $$("addform").clear();
             }
             else
             {
@@ -207,10 +208,10 @@
         // empties data then reloads it
         function reload_data()
         {
-            $$("crudtable").clearAll()
+            $$("crudtable").clearAll();
             $$("crudtable").load('data/data.json');  
-            $$("reporttable").clearAll()
-            $$("reporttable").load('data/data.json');
+            $$("reporttable").clearAll();
+            $$("reporttable").load('data/data.json');          
         }
         // export data to csv
         function export_to_csv()
@@ -258,7 +259,7 @@
                         console.log(data);
                     }
                 });         
-
+                toggle_add_sales_report();
                 reload_data();
             }
             else
@@ -269,34 +270,29 @@
         {
             // data to add, ints are wrapped in parseInt values are grabbed from form
             // rest are 0 (empty) as they are handled by server
-            if($$("addform").validate())
-            {
-                var data = {
-                            id: $$("editform").getValues().id, 
-                            item: $$("editform").getValues().item, 
-                            sales: parseInt($$("editform").getValues().sales),
-                            stockprice: 0,
-                            saleprice: 0,
-                            profit: 0,
-                            roi: 0
-                            };
+            var data = {
+                        id: $$("editform").getValues().id, 
+                        item: $$("editform").getValues().item, 
+                        sales: parseInt($$("editform").getValues().sales),
+                        stockprice: 0,
+                        saleprice: 0,
+                        profit: 0,
+                        roi: 0
+                        };
 
-                // ajax put call to server
-                $.ajax({
-                    type: 'PUT',
-                    data: JSON.stringify(data),
-                    contentType: 'application/json',
-                    url: '/public/data/data.json',                
-                    success: function(data) {
-                        console.log('success');
-                        console.log(data);
-                    }
-                });   
-
-                reload_data();                  
-            }
-            else
-                webix.message({ type:"error", text:"No item selected" });
+            // ajax put call to server
+            $.ajax({
+                type: 'PUT',
+                data: JSON.stringify(data),
+                contentType: 'application/json',
+                url: '/public/data/data.json',                
+                success: function(data) {
+                console.log('success');
+                console.log(data);
+                }
+            });   
+            toggle_edit_sales_report();    
+            reload_data();                  
         }
 		
 		function increment_item()
